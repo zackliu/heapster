@@ -191,6 +191,7 @@ func createSourceManagerOrDie(src flags.Uris) core.MetricsSource {
 
 func createAndInitSinksOrDie(sinkAddresses flags.Uris, historicalSource string, sinkExportDataTimeout time.Duration, disableMetricSink bool) (core.DataSink, *metricsink.MetricSink, core.HistoricalSource) {
 	sinksFactory := sinks.NewSinkFactory()
+	glog.Info(sinkAddresses)
 	metricSink, sinkList, histSource := sinksFactory.BuildAll(sinkAddresses, historicalSource, disableMetricSink)
 	if metricSink == nil && !disableMetricSink {
 		glog.Fatal("Failed to create metric sink")
