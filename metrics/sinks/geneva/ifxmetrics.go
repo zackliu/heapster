@@ -31,6 +31,7 @@ func (this *MeasureMetric) NewMeasureMetric(account string, namespace string, me
 	cDimensionKey := make([]*C.char, len(dimensionKey))
 	for i := range dimensionKey {
 		cDimensionKey[i] = C.CString(dimensionKey[i])
+		defer C.free(unsafe.Pointer(cDimensionKey[i]))
 	}
 	result := C.CreateIfxMeasureMetricDelegate(&this.hMetric, this.account, this.namespace, this.metricName, this.countDimension, (**C.char)(unsafe.Pointer(&cDimensionKey[0])), 0)
 	return int(result)

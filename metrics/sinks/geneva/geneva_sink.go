@@ -35,18 +35,20 @@ func (this *GenevaSink) Name() string {
 }
 
 func (this *GenevaSink) Stop() {
-	IfxCleanup()
+
 }
 
 func SendToGeneva(batch *core.DataBatch) {
 	metric := &MeasureMetric{}
 	metric.NewMeasureMetric("SignalRShoeboxTest", "k8stest", "test", []string{"ResourceId", "InstanceId"})
 	metric.LogValue(22, []string{"/asdfasd/asdfasdf", "dfsfh46814sdaf"})
+
 }
 
 func (this *GenevaSink) ExportData(batch *core.DataBatch) {
 	IfxStartup()
 	SendToGeneva(batch)
+	IfxCleanup()
 }
 
 func NewGenevaSink() *GenevaSink {
