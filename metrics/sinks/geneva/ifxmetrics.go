@@ -15,26 +15,31 @@ import (
 
 type MeasureMetric struct {
 	hMetric        unsafe.Pointer
-	account        *C.char
-	namespace      *C.char
-	metricName     *C.char
 	countDimension C.ulong
 }
 
-func (this *MeasureMetric) NewMeasureMetric(account string, namespace string, metricName string, dimensionKey []string) int {
+func NewMeasureMetric(account string, namespace string, metricName string, dimensionKey []string) *MeasureMetric {
+	this := &MeasureMetric{}
 	this.hMetric = nil
-	this.account = C.CString(account)
-	this.namespace = C.CString(namespace)
-	this.metricName = C.CString(metricName)
+	cAccount := C.CString(account)
+	cNamespace := C.CString(namespace)
+	cMetricName := C.CString(metricName)
 	this.countDimension = C.ulong(len(dimensionKey))
+
+	defer C.free(unsafe.Pointer(cAccount))
+	defer C.free(unsafe.Pointer(cNamespace))
+	defer C.free(unsafe.Pointer(cMetricName))
 
 	cDimensionKey := make([]*C.char, len(dimensionKey))
 	for i := range dimensionKey {
 		cDimensionKey[i] = C.CString(dimensionKey[i])
 		defer C.free(unsafe.Pointer(cDimensionKey[i]))
 	}
-	result := C.CreateIfxMeasureMetricDelegate(&this.hMetric, this.account, this.namespace, this.metricName, this.countDimension, (**C.char)(unsafe.Pointer(&cDimensionKey[0])), 0)
-	return int(result)
+	result := C.CreateIfxMeasureMetricDelegate(&this.hMetric, cAccount, cNamespace, cMetricName, this.countDimension, (**C.char)(unsafe.Pointer(&cDimensionKey[0])), 0)
+	if int(result) == 0 {
+		return this
+	}
+	return nil
 }
 
 func (this *MeasureMetric) LogValue(value int64, dimensionValue []string) error {

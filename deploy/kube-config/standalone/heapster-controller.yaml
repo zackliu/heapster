@@ -25,7 +25,7 @@ spec:
         command:
         - /run.sh
         - --source=kubernetes
-        - --sink=geneva
+        - --sink=log
 ---
 # apiVersion: v1
 # kind: Service
