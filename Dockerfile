@@ -24,6 +24,8 @@ COPY heapster /
 
 COPY run.sh /run.sh
 
+RUN chmod +x /run.sh
+
 ENV LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu"
 
 # COPY ca-certificates.crt /etc/ssl/certs/

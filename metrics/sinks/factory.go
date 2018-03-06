@@ -77,7 +77,7 @@ func (this *SinkFactory) Build(uri flags.Uri) (core.DataSink, error) {
 	case "honeycomb":
 		return honeycomb.NewHoneycombSink(&uri.Val)
 	case "geneva":
-		return geneva.NewGenevaSink(), nil
+		return geneva.NewGenevaSink(&uri.Val), nil
 	default:
 		return nil, fmt.Errorf("Sink not recognized: %s", uri.Key)
 	}

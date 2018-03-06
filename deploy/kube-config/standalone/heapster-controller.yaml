@@ -25,7 +25,7 @@ spec:
         command:
         - /run.sh
         - --source=kubernetes
-        - --sink=log
+        - --sink=geneva:?account=SignalRShoeboxTest&namespace=k8stest2
 ---
 # apiVersion: v1
 # kind: Service

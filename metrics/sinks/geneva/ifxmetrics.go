@@ -11,6 +11,8 @@ import "C"
 import (
 	"fmt"
 	"unsafe"
+
+	"github.com/golang/glog"
 )
 
 type MeasureMetric struct {
@@ -35,6 +37,9 @@ func NewMeasureMetric(account string, namespace string, metricName string, dimen
 		cDimensionKey[i] = C.CString(dimensionKey[i])
 		defer C.free(unsafe.Pointer(cDimensionKey[i]))
 	}
+
+	glog.Infof("Create metric, account: %v, namespace: %v, metric: %v ", account, namespace, metricName)
+
 	result := C.CreateIfxMeasureMetricDelegate(&this.hMetric, cAccount, cNamespace, cMetricName, this.countDimension, (**C.char)(unsafe.Pointer(&cDimensionKey[0])), 0)
 	if int(result) == 0 {
 		return this
@@ -42,7 +47,7 @@ func NewMeasureMetric(account string, namespace string, metricName string, dimen
 	return nil
 }
 
-func (this *MeasureMetric) LogValue(value int64, dimensionValue []string) error {
+func (this *MeasureMetric) LogValue(metricName string, value int64, dimensionValue []string) error {
 	if C.ulong(len(dimensionValue)) != this.countDimension {
 		return fmt.Errorf("The length of dimensionValue is different from dimensionKey")
 	}
@@ -52,6 +57,7 @@ func (this *MeasureMetric) LogValue(value int64, dimensionValue []string) error 
 		cDimensionKey[i] = C.CString(dimensionValue[i])
 		defer C.free(unsafe.Pointer(cDimensionKey[i]))
 	}
+	glog.Infof("Sending metric: %v with value %d", metricName, value)
 
 	result := C.SetIfxMeasureMetricDelegate(this.hMetric, C.longlong(value), this.countDimension, (**C.char)(unsafe.Pointer(&cDimensionKey[0])))
 	if int(result) == 0 {
