@@ -20,13 +20,30 @@ spec:
       serviceAccountName: heapster
       containers:
       - name: heapster
-        image: zackliu1995/heapster
+        image: geneva.azurecr.io/heapster
         imagePullPolicy: Always
         command:
         - /run.sh
-        - --source=kubernetes
-        - --sink=geneva:?account=SignalRShoeboxTest&namespace=k8stest2
----
+        env:
+          - name: ACCOUNT
+            value: "${ACCOUNT}"
+        volumeMounts:
+          - name: mdm-mdsd-vol
+            mountPath: /tmp/geneva
+            readOnly: true
+          - name: secret-vol
+            mountPath: /etc/mdm
+            readOnly: true
+      volumes:
+        - name: mdm-mdsd-vol
+          configMap:
+            name: mdm-mdsd-conf
+        - name: secret-vol
+          secret:
+            secretName: secret-conf
+      imagePullSecrets:
+        - name: genevaregistry
+# ---
 # apiVersion: v1
 # kind: Service
 # metadata:

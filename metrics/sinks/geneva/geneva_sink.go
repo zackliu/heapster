@@ -116,38 +116,38 @@ func (this *GenevaSink) dealNodeMetric(nodeName string, metricSet *core.MetricSe
 }
 
 func (this *GenevaSink) dealPodMetric(podName string, metricSet *core.MetricSet) {
-	resourceId := getCustomLabel(metricSet.Labels["labels"], "ResourceId")
-	if resourceId == "" {
-		resourceId = "unknown"
+	resourceKubeId := getCustomLabel(metricSet.Labels["labels"], "resourceKubeId")
+	if resourceKubeId == "" {
+		resourceKubeId = "unknown"
 	}
 
 	if value, ok := metricSet.MetricValues["network/rx_rate"]; ok {
-		this.metricsDefinition["PodNetworkIn"].LogValue("PodNetworkIn", getValue(value, 1), []string{resourceId, podName, "total"})
+		this.metricsDefinition["PodNetworkIn"].LogValue("PodNetworkIn", getValue(value, 1), []string{resourceKubeId, podName, "total"})
 	}
 	if value, ok := metricSet.MetricValues["network/tx_rate"]; ok {
-		this.metricsDefinition["PodNetworkOut"].LogValue("PodNetworkOut", getValue(value, 1), []string{resourceId, podName, "total"})
+		this.metricsDefinition["PodNetworkOut"].LogValue("PodNetworkOut", getValue(value, 1), []string{resourceKubeId, podName, "total"})
 	}
 }
 
 func (this *GenevaSink) dealContainerMetric(podName string, containerName string, metricSet *core.MetricSet) {
-	resourceId := getCustomLabel(metricSet.Labels["labels"], "ResourceId")
-	if resourceId == "" {
-		resourceId = "unknown"
+	resourceKubeId := getCustomLabel(metricSet.Labels["labels"], "resourceKubeId")
+	if resourceKubeId == "" {
+		resourceKubeId = "unknown"
 	}
 
 	if value, ok := metricSet.MetricValues["cpu/usage_rate"]; ok {
-		this.metricsDefinition["PodCpuUsage"].LogValue("PodCpuUsage", getValue(value, 1), []string{resourceId, podName, containerName})
+		this.metricsDefinition["PodCpuUsage"].LogValue("PodCpuUsage", getValue(value, 1), []string{resourceKubeId, podName, containerName})
 	}
 	if value, ok := metricSet.MetricValues["memory/working_set"]; ok {
-		this.metricsDefinition["PodMemory"].LogValue("PodMemory", getValue(value, 1), []string{resourceId, podName, containerName})
+		this.metricsDefinition["PodMemory"].LogValue("PodMemory", getValue(value, 1), []string{resourceKubeId, podName, containerName})
 	}
 
 	for _, labeledMetric := range metricSet.LabeledMetrics {
 		if labeledMetric.Name == "disk/io_read_bytes_rate" {
-			this.metricsDefinition["PodDiskRead"].LogValue("PodDiskRead", getValue(labeledMetric.MetricValue, 1), []string{resourceId, podName, containerName})
+			this.metricsDefinition["PodDiskRead"].LogValue("PodDiskRead", getValue(labeledMetric.MetricValue, 1), []string{resourceKubeId, podName, containerName})
 		}
 		if labeledMetric.Name == "disk/io_write_bytes_rate" {
-			this.metricsDefinition["PodDiskWrite"].LogValue("PodDiskWrite", getValue(labeledMetric.MetricValue, 1), []string{resourceId, podName, containerName})
+			this.metricsDefinition["PodDiskWrite"].LogValue("PodDiskWrite", getValue(labeledMetric.MetricValue, 1), []string{resourceKubeId, podName, containerName})
 		}
 	}
 }
@@ -175,12 +175,12 @@ func (this *GenevaSink) InitMetrics(config GenevaConfig) {
 	this.metricsDefinition["NodeMemoryPercentage"] = NewMeasureMetric(account, namespace, "NodeMemoryPercentage", []string{"NodeName"})
 	this.metricsDefinition["NodeNetworkIn"] = NewMeasureMetric(account, namespace, "NodeNetworkIn", []string{"NodeName"})
 	this.metricsDefinition["NodeNetworkOut"] = NewMeasureMetric(account, namespace, "NodeNetworkOut", []string{"NodeName"})
-	this.metricsDefinition["PodCpuUsage"] = NewMeasureMetric(account, namespace, "PodCpuUsage", []string{"ResourceId", "PodName", "ContainerName"})
-	this.metricsDefinition["PodMemory"] = NewMeasureMetric(account, namespace, "PodMemory", []string{"ResourceId", "PodName", "ContainerName"})
-	this.metricsDefinition["PodNetworkIn"] = NewMeasureMetric(account, namespace, "PodNetworkIn", []string{"ResourceId", "PodName", "ContainerName"})
-	this.metricsDefinition["PodNetworkOut"] = NewMeasureMetric(account, namespace, "PodNetworkOut", []string{"ResourceId", "PodName", "ContainerName"})
-	this.metricsDefinition["PodDiskWrite"] = NewMeasureMetric(account, namespace, "PodDiskWrite", []string{"ResourceId", "PodName", "ContainerName"})
-	this.metricsDefinition["PodDiskRead"] = NewMeasureMetric(account, namespace, "PodDiskRead", []string{"ResourceId", "PodName", "ContainerName"})
+	this.metricsDefinition["PodCpuUsage"] = NewMeasureMetric(account, namespace, "PodCpuUsage", []string{"resourceKubeId", "PodName", "ContainerName"})
+	this.metricsDefinition["PodMemory"] = NewMeasureMetric(account, namespace, "PodMemory", []string{"resourceKubeId", "PodName", "ContainerName"})
+	this.metricsDefinition["PodNetworkIn"] = NewMeasureMetric(account, namespace, "PodNetworkIn", []string{"resourceKubeId", "PodName", "ContainerName"})
+	this.metricsDefinition["PodNetworkOut"] = NewMeasureMetric(account, namespace, "PodNetworkOut", []string{"resourceKubeId", "PodName", "ContainerName"})
+	this.metricsDefinition["PodDiskWrite"] = NewMeasureMetric(account, namespace, "PodDiskWrite", []string{"resourceKubeId", "PodName", "ContainerName"})
+	this.metricsDefinition["PodDiskRead"] = NewMeasureMetric(account, namespace, "PodDiskRead", []string{"resourceKubeId", "PodName", "ContainerName"})
 }
 
 func (this *GenevaSink) ExportData(batch *core.DataBatch) {
